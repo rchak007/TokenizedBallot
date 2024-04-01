@@ -32,7 +32,8 @@ const PROPOSALS = ["Defi", "Gaming", "DePin"];
 
 const tokenContractAddressMine = "0xA7C36711208b0D6c2dC417fD6fA806746194256D";
 const tokenizedBallotContractAddress =
-  "0xd95fdfe538f0ce7d3e8cb7a16af7af1cd9e60ebd"; // Test1
+  "0x87f5eF64a3A4Ec1173355856454987B805B02a85"; // group 1
+// "0xd95fdfe538f0ce7d3e8cb7a16af7af1cd9e60ebd"; // Test1
 const aaronAddress = "0xA9972292A1B7c82d191E79f34D7A493De48eDdEd";
 const joeBorAddress = "0xB1c4bB25346ad3F3de0019AE75eEa1ADAce201e8";
 const tokenContractAddress = "0xD38d61ab91E134D01a6DbB48b0D2a0C181B4B936"; // Joe-bo2's
@@ -68,7 +69,7 @@ async function main() {
     abi: abiTB,
     functionName: "vote",
     // args: [acc2.account.address],
-    args: [1n, 1n], // self delegate for Joe's Token contract
+    args: [2n, 5000000000000000000n], // self delegate for Joe's Token contract
     // account: voterAccount,
     account: account2,
   });

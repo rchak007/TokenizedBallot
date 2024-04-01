@@ -45,10 +45,17 @@ async function main() {
     chain: sepolia,
     transport: http(`https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`),
   });
+  const account2 = privateKeyToAccount(`0x${acc2PrivateKey}`);
+  const acc2 = createWalletClient({
+    account: account2,
+    chain: sepolia,
+    transport: http(`https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`),
+  });
 
   const tokenContractAddress = "0xA7C36711208b0D6c2dC417fD6fA806746194256D";
   const tokenizedBallotContractAddress =
-    "0xd95fdfe538f0ce7d3e8cb7a16af7af1cd9e60ebd"; // Test1
+    "0x87f5eF64a3A4Ec1173355856454987B805B02a85"; // group 1
+  // "0xd95fdfe538f0ce7d3e8cb7a16af7af1cd9e60ebd"; // Initial Test1
   const aaronAddress = "0xA9972292A1B7c82d191E79f34D7A493De48eDdEd";
   const joeBorAddress = "0xB1c4bB25346ad3F3de0019AE75eEa1ADAce201e8";
 
@@ -60,7 +67,7 @@ async function main() {
     // }));
   })) as `0x${string}`;
   console.log(
-    `Tokenized Contract ${tokenizedBallotContractAddress} is using Token contract -  ${tokenContractRead} \n`
+    `Tokenized Ballot Contract ${tokenizedBallotContractAddress} is using Token contract -  ${tokenContractRead} \n`
   );
 
   const targetBlockNumber = (await publicClient.readContract({
@@ -92,12 +99,11 @@ async function main() {
       console.log("Proposal ", bigPropInd, " = ", name);
       bigPropInd += 1n;
     } catch (error) {
-      console.log("all proposals read ");
+      console.log("\n ");
       // console.error("Error fetching proposal: ", error);
       keepLoopingProp = false;
     }
   }
-
   const winnerName = (await publicClient.readContract({
     address: tokenizedBallotContractAddress,
     abi: abiTB,
@@ -107,6 +113,28 @@ async function main() {
   })) as `0x${string}`;
   const stringValueAfter: `0x${string}` = winnerName as `0x${string}`;
   console.log("Winning name = ", hexToString(stringValueAfter));
+
+  // read the address and votePowerSpent
+  // Account 2
+  const votePowerSpentAcc2 = (await publicClient.readContract({
+    address: tokenizedBallotContractAddress,
+    abi: abiTB,
+    functionName: "votePowerSpent",
+    args: [acc2.account.address],
+  })) as bigint;
+  console.log(
+    `Votespent by acc2 ${acc2.account.address}, Votespent =  ${votePowerSpentAcc2}`
+  );
+  // Joe's address
+  const votePowerSpentJoe = (await publicClient.readContract({
+    address: tokenizedBallotContractAddress,
+    abi: abiTB,
+    functionName: "votePowerSpent",
+    args: [joeBorAddress],
+  })) as bigint;
+  console.log(
+    `Votespent by Joe's account ${joeBorAddress}, Votespent =  ${votePowerSpentJoe}`
+  );
 }
 
 main().catch((error) => {

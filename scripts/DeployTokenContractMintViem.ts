@@ -54,6 +54,7 @@ async function main() {
     transport: http(`https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`),
   });
 
+  // Uncomment to deploy
   // const myTokenContract = await viem.deployContract("MyToken");
   // //   console.log("myTokenContract type = ", typeof myTokenContract);
   // console.log("deployer is ", deployer.account.address);

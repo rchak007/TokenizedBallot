@@ -38,7 +38,10 @@ async function votes(
   console.log(
     `Account ${text1} address -  ${signer.address} has          ${formatEther(
       votes
-    )} units of voting power\n`
+    )} units of voting power - formatted \n`
+  );
+  console.log(
+    `Account ${text1} address -  ${signer.address} has          ${votes} units of voting power\n`
   );
 }
 
