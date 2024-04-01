@@ -1,0 +1,116 @@
+import { viem } from "hardhat";
+import { parseEther, formatEther, formatUnits } from "viem";
+import { expect } from "chai";
+
+async function main() {
+  const publicClient = await viem.getPublicClient();
+  const [deployer, account1, account2] = await viem.getWalletClients();
+  // TODO
+  const tokenContract = await viem.deployContract("MyToken");
+  console.log(`Contract deployed at ${tokenContract.address}`);
+
+  const totalSupply = await tokenContract.read.totalSupply();
+  console.log({ totalSupply });
+
+  // Fetching the role code
+  const code = await tokenContract.read.MINTER_ROLE();
+
+  // const mintTx = await tokenContract.write.mint(
+  //   [deployer.account.address, parseEther("10")],
+  //   { account: account2.account }
+  // );
+  // await publicClient.waitForTransactionReceipt({ hash: mintTx });
+
+  // Giving role
+  const roleTx = await tokenContract.write.grantRole([
+    code,
+    account2.account.address,
+  ]);
+  await publicClient.waitForTransactionReceipt({ hash: roleTx });
+
+  const mintTx = await tokenContract.write.mint(
+    [deployer.account.address, parseEther("10")],
+    { account: account2.account }
+  );
+  await publicClient.waitForTransactionReceipt({ hash: mintTx });
+
+  const [name, symbol, decimals, totalSupply2] = await Promise.all([
+    tokenContract.read.name(),
+    tokenContract.read.symbol(),
+    tokenContract.read.decimals(),
+    tokenContract.read.totalSupply(),
+  ]);
+  console.log({ name, symbol, decimals, totalSupply2 });
+
+  // Sending a transaction
+  const tx = await tokenContract.write.transfer([
+    account1.account.address,
+    parseEther("2"),
+  ]);
+  await publicClient.waitForTransactionReceipt({ hash: tx });
+
+  const myBalance = await tokenContract.read.balanceOf([
+    deployer.account.address,
+  ]);
+  console.log(`My Balance is ${myBalance} decimals units`);
+  const otherBalance = await tokenContract.read.balanceOf([
+    account1.account.address,
+  ]);
+  console.log(`The Balance of Acc1 is ${otherBalance} decimals units`);
+
+  // Viewing converted balances formatted
+  const myBalanceForm = await tokenContract.read.balanceOf([
+    deployer.account.address,
+  ]);
+  console.log(`My Balance is ${formatEther(myBalance)} ${symbol}`);
+  const otherBalanceForm = await tokenContract.read.balanceOf([
+    account1.account.address,
+  ]);
+  console.log(
+    `The Balance of Acc1 formatted is ${formatEther(
+      otherBalanceForm
+    )} ${symbol}`
+  );
+
+  // Viewing converted balances with decimals conversion
+  const myBalanceConv = await tokenContract.read.balanceOf([
+    deployer.account.address,
+  ]);
+  console.log(`My Balance is ${formatUnits(myBalance, decimals)} ${symbol}`);
+  const otherBalanceConv = await tokenContract.read.balanceOf([
+    account1.account.address,
+  ]);
+  console.log(
+    `The Balance CONVERTEd of Acc1 is ${formatUnits(
+      otherBalanceConv,
+      decimals
+    )} ${symbol}`
+  );
+
+  // describe("Basic tests for understanding ERC20", async () => {
+  //   it("triggers the Transfer event with the address of the sender when sending transactions", async () => {
+  //     const tokenContract = await viem.deployContract("MyToken");
+  //     const publicClient = await viem.getPublicClient();
+  //     const [deployer, account1] = await viem.getWalletClients();
+  //     const hash = await tokenContract.write.transfer([
+  //       account1.account.address,
+  //       1n,
+  //     ]);
+  //     await publicClient.waitForTransactionReceipt({ hash });
+  //     const withdrawalEvents = await tokenContract.getEvents.Transfer();
+  //     expect(withdrawalEvents).to.have.lengthOf(1);
+  //     expect(withdrawalEvents[0].args.from?.toLowerCase()).to.equal(
+  //       deployer.account.address
+  //     );
+  //     expect(withdrawalEvents[0].args.to?.toLowerCase()).to.equal(
+  //       account1.account.address
+  //     );
+  //     expect(withdrawalEvents[0].args.value).to.equal(1n);
+  //   });
+  });
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exitCode = 1;
+});
