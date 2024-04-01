@@ -96,7 +96,7 @@ async function main() {
     hash: hashDeployToken,
   });
   console.log(
-    "Tokenized Ballot contract deployed to:",
+    "Tokenized Ballot contract deployed to :",
     receiptDeployToken.contractAddress
   );
   // const tokeninzedBallotContractAddress =
